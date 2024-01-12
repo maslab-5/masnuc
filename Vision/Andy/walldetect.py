@@ -23,8 +23,8 @@ upper_blue = np.array([140, 255, 255])
 blue_mask = cv2.inRange(hsv_image, lower_blue, upper_blue)
 
 im_floodfill = blue_mask.copy()
-h, w = blue_mask.shape[:2]
-mask = np.zeros((h+2, w+2), np.uint8)
+h, w = blue_mask.shape
+# mask = np.zeros((h+2, w+2), np.uint8)
 
 #pick this position better
 cv2.floodFill(im_floodfill, None, (0,0), 255)
@@ -36,14 +36,5 @@ hsv_fill = np.where(im_floodfill[:, :, None], hsv_image, 0)
 original = cv2.cvtColor(hsv_fill.astype(np.uint8), cv2.COLOR_HSV2BGR)
 
 cv2.imshow('Original Image', original)
-
-# blue_mask = np.uint8(blue_mask)
-# # Make only the pixels above the blue mask black
-# result_image = cv2.bitwise_and(image, image, mask=blue_mask)
-
-# # Display the original image, blue mask, and result image
-# cv2.imshow('Original Image', image)
-# cv2.imshow('Blue Mask', blue_mask)
-# cv2.imshow('Result Image', result_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
