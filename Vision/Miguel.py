@@ -1,40 +1,71 @@
+# from google.colab.patches import cv2_imshow
+
 import cv2
 import numpy as np
 
-# Load the image
 image = cv2.imread('red.png')
 
-# Scale the image to 10%
-height, width = image.shape[:2]
-scaled_image = cv2.resize(image, (int(0.1 * width), int(0.1 * height)))
-
-scaled_image = cv2.GaussianBlur(scaled_image, (7, 7), 0)
-
-# Convert the scaled image to the HSV color space
-hsv = cv2.cvtColor(scaled_image, cv2.COLOR_BGR2HSV)
-
-# Define a lower and upper threshold for red color in HSV
-lower_red1 = np.array([0, 100, 20])
-upper_red1 = np.array([20, 255, 255])
-
-lower_red2 = np.array([159, 100, 20])
-upper_red2 = np.array([179, 255, 255])
-
-# Create a binary mask for red regions
-mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
-
-cmask = cv2.bitwise_or(mask1, mask2)
+scale_percent = 30
+width = int(image.shape[1] * scale_percent / 100)
+height = int(image.shape[0] * scale_percent / 100)
+dim = (width, height)
+resized = cv2.resize(image, dim, interpolation = cv2.INTER_AREA)
 
 
-contours, _ = cv2.findContours(cmask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+# gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(resized, (3, 3), 0)
 
-for cnt in contours:
-    x, y, w, h = cv2.boundingRect(cnt)
-    cv2.rectangle(scaled_image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+blue_channel = blurred[:, :, 0]
+green_channel = blurred[:, :, 1]
+red_channel = blurred[:, :, 2]
+mask = ((blue_channel-red_channel)^2 + (green_channel - red_channel)^2) < 120
+# Optional: Create an image to visualize the mask
+# This will create a white pixel wherever the condition is true
+visualized_mask = np.zeros_like(blurred)
+visualized_mask[mask] = [255, 0, 0]
+
+cv2_imshow(visualized_mask)
 
 
-# Display the original image, scaled image, and the result
-cv2.imshow('Red Object Detection', scaled_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2_imshow(blurred)
+# thresh = cv2.threshold(blurred, 0, 60, cv2.THRESH_BINARY)[1]
+
+# contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# for contour in contours:
+#     peri = cv2.arcLength(contour, True)
+#     approx = cv2.approxPolyDP(contour, 0.04 * peri, True)
+#     if len(approx) == 4 or len(approx) == 6:
+#         cv2.drawContours(resized, [approx], -1, (0, 255, 0), 3)
+# cv2_imshow(resized)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+
+
+# -----
+
+
+# from google.colab.patches import cv2_imshow
+
+# import cv2
+# import numpy as np
+
+# # Load the image
+# image = cv2.imread('red.png')
+
+# # Split the image into its RGB channels
+# blue_channel = image[:,:,0]
+# green_channel = image[:,:,1]
+
+# # Calculate the difference between the green and blue channels
+# channel_difference = cv2.subtract(blue_channel, green_channel)
+
+# # Create an empty image with the same dimensions
+# result_image = np.zeros_like(image)
+
+# # Set the green channel of the result image to the channel difference
+# result_image[:,:,1] = channel_difference
+
+# # Display or save the result image
+# cv2_imshow(result_image)
+
