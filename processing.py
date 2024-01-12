@@ -25,8 +25,14 @@ mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
 mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
 
 cmask = cv2.bitwise_or(mask1, mask2)
-# Set the pixels in the mask to blue
-scaled_image[cmask > 0] = [255, 0, 0]  # Blue color
+
+
+contours, _ = cv2.findContours(cmask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+for cnt in contours:
+    x, y, w, h = cv2.boundingRect(cnt)
+    cv2.rectangle(scaled_image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
 
 # Display the original image, scaled image, and the result
 cv2.imshow('Red Object Detection', scaled_image)
