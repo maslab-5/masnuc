@@ -28,7 +28,7 @@ def lastIndex(list,x):
     raise ValueError("{} is not in list".format(x))
 
 ###Drawing rectange###
-img = cv2.imread("justDoImage.png",1)
+img = cv2.imread("./testVision/justDoImage.png",1)
 img = cv2.resize(img, (0,0),fx=0.2,fy=0.2)
 
 #Change here#
@@ -75,7 +75,6 @@ img = cv2.rectangle(img, (np.min(x), np.min(y)), (np.max(x), np.max(y)), (0,255,
 
 
 edges = cv2.Canny(img,100,200)
-
 
 ###
 
