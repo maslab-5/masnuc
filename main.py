@@ -12,8 +12,8 @@ scaled_image = cv2.resize(image, dimensions, interpolation=cv2.INTER_AREA) #INTE
 
 kernel = (7,7)
 sigmaX = 0
-scaled_image = cv2.GaussianBlur(scaled_image, kernel, sigmaX)
-hsv = cv2.cvtColor(scaled_image, cv2.COLOR_BGR2HSV)
+blurred = cv2.GaussianBlur(scaled_image, kernel, sigmaX)
+hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
 # print(hsv)
 
@@ -43,7 +43,7 @@ else:
 
 
 # ! tests
-cv2.imwrite("tests/blur.png", scaled_image)
+cv2.imwrite("tests/blur.png", blurred)
 cv2.imwrite("tests/hsv.png", hsv)
 # cv2.imwrite("tests/mask1.png", mask1)
 # cv2.imwrite("tests/mask2.png", mask2)
