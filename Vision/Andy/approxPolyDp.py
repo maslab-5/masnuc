@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
-from helperFunctions import twoNeighbors
-import createMasks
+import CreateMasks
 
 # Load and blur image
 img = cv2.imread('../img/Green.png')
@@ -18,8 +17,8 @@ zero = np.zeros((h+2, w+2), np.uint8)
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 # Get masks
-processed_green_mask = createMasks.greenMask(hsv)
-processed_red_mask = createMasks.redMask(hsv)
+processed_green_mask = CreateMasks.greenMask(hsv)
+processed_red_mask = CreateMasks.redMask(hsv)
 
 # Get and combine contours
 green_contours, _ = cv2.findContours(processed_green_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
