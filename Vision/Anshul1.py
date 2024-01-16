@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-image = cv2.imread('red.png')
-cv2.imwrite('tests/red.png', image)
+image = cv2.imread('r.png')
+cv2.imwrite('tests/r.png', image)
 
 height = image.shape[0]
 width = image.shape[1]
