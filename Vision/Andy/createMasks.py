@@ -19,10 +19,19 @@ def greenMask(hsv):
     return processed_green_mask
 
 def redMask(hsv):
-    # Define a range for green color in HSV
-    lower_red = np.array([35, 20, 20])
-    upper_red = np.array([90, 255, 255])
-    red_mask = cv2.inRange(hsv, lower_red, upper_red)
+    # Define a range for red color in HSV
+    # 150 to 180
+    lower_red = np.array([150, 200, 220])
+    upper_red = np.array([180, 255, 255])
+    red_mask_1 = cv2.inRange(hsv, lower_red, upper_red)
+
+    # 0 to 30
+    lower_red = np.array([0, 200, 220])
+    upper_red = np.array([30, 255, 255])
+    red_mask_2 = cv2.inRange(hsv, lower_red, upper_red)
+
+    # Combine masks
+    red_mask = cv2.bitwise_or(red_mask_1, red_mask_2)
     red_mask = np.float32(red_mask)
 
     # Perform erosion to remove small white regions
