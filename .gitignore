@@ -52,3 +52,6 @@ CATKIN_IGNORE
 
 # Custom #
 .DS_Store
+
+Vision/tests/
+Vision/img
