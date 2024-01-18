@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 
 def process_frame(image):
-
-    height = image.shape[0]
-    width = image.shape[1]
+    height, width = image.shape[:2]
+    offset = 0
 
     dimensions = (int(0.2 * width), int(0.2 * height))
     scaled_image = cv2.resize(image, dimensions, interpolation=cv2.INTER_AREA)
+    center = scaled_image.shape[1]/2
 
     kernel = (7, 7)
     sigmaX = 0
@@ -31,17 +31,16 @@ def process_frame(image):
         x, y, w, h = cv2.boundingRect(largest_contour)
         origin = (x, y)
         endpoint = (x + w, y + h)
+        rect_center = x+w//2
+        offset = int(rect_center - center)
         cv2.rectangle(scaled_image, origin, endpoint, (255, 0, 0), 2)
 
-    return scaled_image
+    return (scaled_image, offset)
 
 # cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture('Videos/IMG_6320.mp4')
-
-
+cap = cv2.VideoCapture('Videos/IMG_6317.mp4')
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
-
 
 # while True:
 while cap.isOpened():
@@ -50,9 +49,10 @@ while cap.isOpened():
         break
 
     processed_frame = process_frame(frame)
-    out.write(processed_frame)
+    out.write(processed_frame[0])
 
-    cv2.imshow('frame', processed_frame)
+    cv2.imshow('frame', processed_frame[0])
+    print(processed_frame[1])
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
