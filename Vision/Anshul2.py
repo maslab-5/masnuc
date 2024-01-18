@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 def process_frame(image):
+
     height = image.shape[0]
     width = image.shape[1]
 
@@ -34,11 +35,15 @@ def process_frame(image):
 
     return scaled_image
 
-cap = cv2.VideoCapture('img/red.mp4')
+# cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('img/4.MOV')
+
 
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
 
+
+# while True:
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:

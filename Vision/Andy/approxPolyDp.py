@@ -4,7 +4,7 @@ import createMasks
 
 def approxPolyDP(img):
     # Load and blur image
-    # img = cv2.imread('../img/Green.png')
+    # img = cv2.imread('../img/GreenRedGreen.png')
     height, width = img.shape[:2]
     img = cv2.GaussianBlur(img, (3, 3), 0)
     img = cv2.resize(img, (int(0.5 * width), int(0.5 * height)))
@@ -28,8 +28,7 @@ def approxPolyDP(img):
     # Identifying Shapes
     for contour in contours:
         approx = cv2.approxPolyDP(contour, 0.02* cv2.arcLength(contour, True), True)
-        if cv2.arcLength(approx, closed=True) > 800:
-            print(approx)
+        if cv2.arcLength(approx, closed=True) > 500:
             rect = cv2.minAreaRect(approx)
             box = cv2.boxPoints(rect)
             box = np.intp(box)
@@ -37,18 +36,21 @@ def approxPolyDP(img):
             angle = rect[-1]
             print (angle,"deg")
 
-            cv2.drawContours(img, [box], 0, (255, 0, 0), 10)
-            # cv2.drawContours(img, [approx], 0, (0, 255, 0), 10)
+            cv2.drawContours(img, [box], 0, (255, 0, 0), 5)
+            cv2.drawContours(img, [approx], 0, (0, 255, 0), 10)
+
+    return img
 
     # Show images
-    # cv2.imshow('Mask',processed_green_mask)
+    # cv2.imshow('Red',processed_red_mask)
+    # cv2.imshow('Green',processed_green_mask)
     # cv2.imshow('Zero',zero)
     # cv2.imshow('Image',img)
     # cv2.waitKey()
 
     # https://medium.com/simply-dev/detecting-geometrical-shapes-in-an-image-using-opencv-bad67c40174f
 
-cap = cv2.VideoCapture('/Vision/img/red.mp4')
+cap = cv2.VideoCapture('../Videos/IMG_6319.mp4')
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
 
@@ -58,8 +60,12 @@ while cap.isOpened():
         break
 
     processed_frame = approxPolyDP(frame)
-    out.write(processed_frame)
+    # out.write(processed_frame)
 
-    cv2.imshow('frame', processed_frame)
+    cv2.imshow('Fuck', processed_frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
