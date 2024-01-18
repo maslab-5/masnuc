@@ -38,7 +38,7 @@ def process_frame(image):
     return (scaled_image, offset)
 
 # cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture('Videos/IMG_6317.mp4')
+cap = cv2.VideoCapture('Videos/IMG_6320.mp4')
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
 

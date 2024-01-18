@@ -93,7 +93,7 @@ def approxPolyDP(img):
     # https://medium.com/simply-dev/detecting-geometrical-shapes-in-an-image-using-opencv-bad67c40174f
 
 # Video
-cap = cv2.VideoCapture('../Videos/IMG_6319.mp4')
+cap = cv2.VideoCapture('Videos/IMG_6320.mp4')
 
 # fourcc = cv2.VideoWriter_fourcc(*'XVID')
 # out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640, 480))
