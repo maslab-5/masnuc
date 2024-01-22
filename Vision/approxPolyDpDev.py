@@ -45,10 +45,14 @@ def redMask(hsv):
 
 def approxPolyDP(img):
     # Load and blur image
+    # img = cv2.imread('../img/GreenRedGreen.png')
     height, width = img.shape[:2]
     img = cv2.GaussianBlur(img, (5, 5), 0)
     img = cv2.resize(img, (int(0.5 * width), int(0.5 * height)))
     img = cv2.GaussianBlur(img, (3, 3), 0)
+
+    # Creating all black image
+    # zero = np.zeros((height+2, width+2), np.uint8)
 
     # Convert to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -74,7 +78,30 @@ def approxPolyDP(img):
             print (angle,"deg")
             cv2.drawContours(img, [approx], 0, (0, 255, 0), 10)
 
+    # # Identifying Shapes
+    # for contour in contours:
+    #     approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)
+    #     if cv2.arcLength(approx, closed=True) > 300:
+    #         rect = cv2.minAreaRect(approx)
+    #         box = cv2.boxPoints(rect)
+    #         box = np.intp(box)
+
+    #         angle = rect[-1]
+    #         print (angle,"deg")
+
+    #         # cv2.drawContours(img, [box], 0, (255, 0, 0), 5)
+    #         cv2.drawContours(img, [approx], 0, (0, 255, 0), 10)
+
     return img
+
+    # Show images
+    # cv2.imshow('Red',processed_red_mask)
+    # cv2.imshow('Green',processed_green_mask)
+    # cv2.imshow('Zero',zero)
+    # cv2.imshow('Image',img)
+    # cv2.waitKey()
+
+    # https://medium.com/simply-dev/detecting-geometrical-shapes-in-an-image-using-opencv-bad67c40174f
 
 # Video
 cap = cv2.VideoCapture(0)
@@ -87,4 +114,11 @@ while cap.isOpened():
 
     processed_frame = approxPolyDP(frame)
 
+    cv2.imshow('Frame', processed_frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
 cap.release()
+# out.release()
+cv2.destroyAllWindows()
