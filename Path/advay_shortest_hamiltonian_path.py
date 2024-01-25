@@ -1,6 +1,7 @@
 from sys import maxsize 
 from itertools import permutations
 import math
+import heapq
 
 import numpy as np
 
@@ -56,47 +57,105 @@ def point_segment_distance(px, py, x1, y1, x2, y2):
 
 	return math.hypot(dx, dy)
 
-def make_graph(startX, startY, stacks, walls):
+def make_graph(maxX, maxY, startX, startY, stacks, walls):
 	robot_width = 0.6
 	def wall_in_way(v1, v2):
 		for wall in walls:
 			dist = segments_distance(v1[0], v1[1], v2[0], v2[1], wall[0][0], wall[0][1], wall[1][0], wall[1][1])
 			if dist < robot_width/2:
 				return True
+		for stack in stacks:
+			if v2[0] == stack[0] and v2[1] == stack[1]:
+				break
+			dist = segments_distance(v1[0], v1[1], v2[0], v2[1], stack[0], stack[1], stack[0] + 0.0001, stack[1]+0.0001)
+			if dist < 0.3:
+				return True
 		return False
 
-
-
-
 	G = {}
-	G[(startX, startY)] = {}
-	for stack in stacks:
-		X, Y = stack[0], stack[1]
-		G[(X,Y)] = {}
+	for i in range(maxX):
+		for j in range(maxY):
+			for k in range(maxX):
+				for l in range(maxY):
+					if i==k and j==l:
+						continue
+					else:
+						if (i,j) not in G:
+							G[(i,j)] = {}
+						if (k,l) not in G:
+							G[(k,l)] = {}
 
-	for v1 in G:
-		for v2 in G:
-			if v1 == v2:
-				continue
+						if not wall_in_way((i,j), (k,l)):
+							G[(i,j)][(k,l)] = ((i-k)**2 + (j-l)**2)**0.5
+							G[(k,l)][(i,j)] = ((i-k)**2 + (j-l)**2)**0.5
+			#in case any stack is not a lattice point 
+			for stack in stacks:
+				if (stack[0], stack[1]) not in G:
+					G[(stack[0], stack[1])] = {}
+				if not wall_in_way((i,j), (stack[0], stack[1])):
+					G[(i,j)][(stack[0], stack[1])] = ((i - stack[0])**2 + (j-stack[1])**2)**0.5
+					G[(stack[0], stack[1])][(i,j)] = ((i - stack[0])**2 + (j-stack[1])**2)**0.5
 
-			else:
-				if not wall_in_way(v1, v2):
-					G[v1][v2] = ((v1[0] - v2[0])**2 + (v1[1]-v2[1])**2)**0.5
-					G[v2][v1] = ((v1[0] - v2[0])**2 + (v1[1]-v2[1])**2)**0.5
+	#handle case of start position not being a lattice point
+	if (startX, startY) not in G:
+		G[(startX, startY)] = {}
+		for stack in stacks:
+			if not wall_in_way((startX, startY), (stack[0], stack[1])):
+				G[(startX, startY)][(stack[0], stack[1])] = ((startX - stack[0])**2 + (startY-stack[1])**2)**0.5
+				G[(stack[0], stack[1])][(startX,startY)] = ((startX - stack[0])**2 + (startY-stack[1])**2)**0.5
+		for i in range(maxX):
+			for j in range(maxY):
+				if not wall_in_way((startX, startY), (i,j)):
+					G[(i,j)][(startX, startY)] = ((i-startX)**2 + (j-startY)**2)**0.5
+					G[(startX, startY)][(i,j)] = ((i-startX)**2 + (j-startY)**2)**0.5
+
+
 	return G
 
-def travellingSalesmanProblem(graph, s): 
+
+def travellingSalesmanProblem(graph, s, stacks):
+
+	def min_path(G, start, finish):
+
+		def euclidean(vertex, finish):
+			return ((vertex[0]-finish[0])**2 + (vertex[1] - finish[1])**2)**0.5
+
+		if finish in G[start]:
+			return G[start][finish], finish
+
+		opened = []
+		heapq.heappush(opened, (0, (start,)))
+		while opened:
+			curr_dist, curr = heapq.heappop(opened)
+			if curr[-1] == finish:
+				return curr_dist, curr
+			min_dist = float('inf')
+			min_travel = None
+			best = None
+			for vertex in G[curr[-1]]:
+				if vertex in curr:
+					continue
+				dist = G[curr[-1]][vertex] + euclidean(vertex, finish)
+				if dist < min_dist:
+					best = vertex
+					min_travel = G[curr[-1]][vertex]
+
+			if min_travel is not None:
+				curr = curr + (best,)
+				heapq.heappush(opened, (curr_dist + min_travel, curr))
+
+		return None
 
 	# store all vertex apart from source vertex 
 	vertex = [] 
-	for v in graph:
-		if v != s: 
-			vertex.append(v) 
+	for v in stacks:
+		vertex.append((v[0], v[1]))
 	# store minimum weight Hamiltonian Cycle 
 	min_length  = float('inf')
-	min_path = None
+	answer = None
 	next_permutation=permutations(vertex)
 	for i in next_permutation:
+		curr_path = [(s[0],s[1])]
 	# store current Path weight(cost) 
 		current_pathweight = 0
 
@@ -104,23 +163,31 @@ def travellingSalesmanProblem(graph, s):
 		finished = True
 		curr = s 
 		for j in i: 
-			if j not in graph[curr]:
+			result = min_path(G, curr, j)
+			print(result)
+			if result is None:
 				finished = False
 				break
-			else:
-				current_pathweight += graph[curr][j]
-				curr = j  
+			length, path = result[0], result[1]
+			current_pathweight += length
+			curr_path.append(path)
+			curr = j  
 		if not finished:
 			continue
 		if current_pathweight < min_length:
 			min_length = current_pathweight
-			min_path = i
-	return (min_path, min_length)
+			answer = curr_path
+		print(i, current_pathweight)
+	return (answer, min_length)
 
+maxX = 10
+maxY = 10
 startX= 0.5
 startY= 0.5
 stacks= [[1.0, 2.0, [False, True, False]], [2.0, 1.0, [False, True, False]], [3.0, 3.0, [False, True, False]], [4.0, 4.0, [False, True, False]], [5.0, 3.0, [False, True, False]]]
-walls= [[[0, 1.5], [1,1.5]],[[1.0, 5.0], [6.0, 5.0]], [[6.0, 5.0], [6.0, 2.0]], [[6.0, 2.0], [5.0, 2.0]], [[5.0, 2.0], [5.0, 1.0]], [[5.0, 1.0], [3.0, 1.0]], [[3.0, 1.0], [3.0, 0.0]], [[3.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 3.0]], [[0.0, 3.0], [1.0, 3.0]], [[1.0, 3.0], [1.0, 5.0]]]
-G = make_graph(startX, startY, stacks, walls)
+walls= [[[2,2],[2,3]],[[0, 1.5], [1,1.5]],[[1.0, 5.0], [6.0, 5.0]], [[6.0, 5.0], [6.0, 2.0]], [[6.0, 2.0], [5.0, 2.0]], [[5.0, 2.0], [5.0, 1.0]], [[5.0, 1.0], [3.0, 1.0]], [[3.0, 1.0], [3.0, 0.0]], [[3.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 3.0]], [[0.0, 3.0], [1.0, 3.0]], [[1.0, 3.0], [1.0, 5.0]]]
+G = make_graph(maxX, maxY, startX, startY, stacks, walls)
+print(len(G.keys()))
+print(G[(2,1)])
 #print(segments_distance(0,10,1,10,0,0,1,0))
-print(travellingSalesmanProblem(G, (startX, startY)))
+print(travellingSalesmanProblem(G, (startX, startY), stacks))
