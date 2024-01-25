@@ -73,28 +73,28 @@ def make_graph(maxX, maxY, startX, startY, stacks, walls):
 		return False
 
 	G = {}
-	for i in range(maxX):
-		for j in range(maxY):
-			for k in range(maxX):
-				for l in range(maxY):
+	for i in range(2*maxX):
+		for j in range(2*maxY):
+			for k in range(2*maxX):
+				for l in range(2*maxY):
 					if i==k and j==l:
 						continue
 					else:
-						if (i,j) not in G:
-							G[(i,j)] = {}
-						if (k,l) not in G:
-							G[(k,l)] = {}
+						if (i/2,j/2) not in G:
+							G[(i/2,j/2)] = {}
+						if (k/2,l/2) not in G:
+							G[(k/2,l/2)] = {}
 
-						if not wall_in_way((i,j), (k,l)):
-							G[(i,j)][(k,l)] = ((i-k)**2 + (j-l)**2)**0.5
-							G[(k,l)][(i,j)] = ((i-k)**2 + (j-l)**2)**0.5
+						if not wall_in_way((i/2,j/2), (k/2,l/2)):
+							G[(i/2,j/2)][(k/2,l/2)] = ((i/2-k/2)**2 + (j/2-l/2)**2)**0.5
+							G[(k/2,l/2)][(i/2,j/2)] = ((i/2-k/2)**2 + (j/2-l/2)**2)**0.5
 			#in case any stack is not a lattice point 
 			for stack in stacks:
 				if (stack[0], stack[1]) not in G:
 					G[(stack[0], stack[1])] = {}
-				if not wall_in_way((i,j), (stack[0], stack[1])):
-					G[(i,j)][(stack[0], stack[1])] = ((i - stack[0])**2 + (j-stack[1])**2)**0.5
-					G[(stack[0], stack[1])][(i,j)] = ((i - stack[0])**2 + (j-stack[1])**2)**0.5
+				if not wall_in_way((i/2,j/2), (stack[0], stack[1])):
+					G[(i/2,j/2)][(stack[0], stack[1])] = ((i/2 - stack[0])**2 + (j/2-stack[1])**2)**0.5
+					G[(stack[0], stack[1])][(i/2,j/2)] = ((i/2 - stack[0])**2 + (j/2-stack[1])**2)**0.5
 
 	#handle case of start position not being a lattice point
 	if (startX, startY) not in G:
@@ -103,11 +103,11 @@ def make_graph(maxX, maxY, startX, startY, stacks, walls):
 			if not wall_in_way((startX, startY), (stack[0], stack[1])):
 				G[(startX, startY)][(stack[0], stack[1])] = ((startX - stack[0])**2 + (startY-stack[1])**2)**0.5
 				G[(stack[0], stack[1])][(startX,startY)] = ((startX - stack[0])**2 + (startY-stack[1])**2)**0.5
-		for i in range(maxX):
-			for j in range(maxY):
-				if not wall_in_way((startX, startY), (i,j)):
-					G[(i,j)][(startX, startY)] = ((i-startX)**2 + (j-startY)**2)**0.5
-					G[(startX, startY)][(i,j)] = ((i-startX)**2 + (j-startY)**2)**0.5
+		for i in range(2*maxX):
+			for j in range(2*maxY):
+				if not wall_in_way((startX, startY), (i/2,j/2)):
+					G[(i/2,j/2)][(startX, startY)] = ((i/2-startX)**2 + (j/2-startY)**2)**0.5
+					G[(startX, startY)][(i/2,j/2)] = ((i/2-startX)**2 + (j/2-startY)**2)**0.5
 
 
 	return G
@@ -127,6 +127,7 @@ def travellingSalesmanProblem(graph, s, stacks):
 		heapq.heappush(opened, (0, (start,)))
 		while opened:
 			curr_dist, curr = heapq.heappop(opened)
+			print(curr)
 			if curr[-1] == finish:
 				return curr_dist, curr
 			min_dist = float('inf')
@@ -136,16 +137,13 @@ def travellingSalesmanProblem(graph, s, stacks):
 				if vertex in curr:
 					continue
 				dist = G[curr[-1]][vertex] + euclidean(vertex, finish)
-				if dist < min_dist:
-					best = vertex
-					min_travel = G[curr[-1]][vertex]
-
-			if min_travel is not None:
-				curr = curr + (best,)
-				heapq.heappush(opened, (curr_dist + min_travel, curr))
+				heapq.heappush(opened, (curr_dist + dist, curr + (vertex,)))
+				
 
 		return None
 
+	print("HELLO")
+	print(min_path(G,(1.0, 2.0), (5.0, 3.0)))
 	# store all vertex apart from source vertex 
 	vertex = [] 
 	for v in stacks:
@@ -164,7 +162,6 @@ def travellingSalesmanProblem(graph, s, stacks):
 		curr = s 
 		for j in i: 
 			result = min_path(G, curr, j)
-			print(result)
 			if result is None:
 				finished = False
 				break
@@ -177,7 +174,7 @@ def travellingSalesmanProblem(graph, s, stacks):
 		if current_pathweight < min_length:
 			min_length = current_pathweight
 			answer = curr_path
-		print(i, current_pathweight)
+		#print(i, current_pathweight)
 	return (answer, min_length)
 
 maxX = 10
@@ -188,6 +185,6 @@ stacks= [[1.0, 2.0, [False, True, False]], [2.0, 1.0, [False, True, False]], [3.
 walls= [[[2,2],[2,3]],[[0, 1.5], [1,1.5]],[[1.0, 5.0], [6.0, 5.0]], [[6.0, 5.0], [6.0, 2.0]], [[6.0, 2.0], [5.0, 2.0]], [[5.0, 2.0], [5.0, 1.0]], [[5.0, 1.0], [3.0, 1.0]], [[3.0, 1.0], [3.0, 0.0]], [[3.0, 0.0], [0.0, 0.0]], [[0.0, 0.0], [0.0, 3.0]], [[0.0, 3.0], [1.0, 3.0]], [[1.0, 3.0], [1.0, 5.0]]]
 G = make_graph(maxX, maxY, startX, startY, stacks, walls)
 print(len(G.keys()))
-print(G[(2,1)])
+#print(G[(2,1)])
 #print(segments_distance(0,10,1,10,0,0,1,0))
 print(travellingSalesmanProblem(G, (startX, startY), stacks))
