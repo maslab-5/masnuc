@@ -71,14 +71,13 @@ def approxPolyDP(img):
             box = np.intp(box)
             angle = rect[-1]
 
-            print (angle,"deg")
+            print (angle)
             cv2.drawContours(img, [approx], 0, (0, 255, 0), 10)
 
     return img
 
 # Video
 cap = cv2.VideoCapture(0)
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
 while cap.isOpened():
     ret, frame = cap.read()

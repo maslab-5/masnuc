@@ -45,7 +45,7 @@ while cap.isOpened():
         break
 
     processed_frame = wallDetect(frame)
-
+    
     cv2.imshow('frame', processed_frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
