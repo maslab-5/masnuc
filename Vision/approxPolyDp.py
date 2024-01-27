@@ -87,3 +87,4 @@ while cap.isOpened():
     processed_frame = approxPolyDP(frame)
 
 cap.release()
+cv2.destroyAllWindows()
